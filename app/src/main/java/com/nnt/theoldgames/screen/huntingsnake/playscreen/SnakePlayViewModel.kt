@@ -95,7 +95,7 @@ class SnakePlayViewModel @Inject constructor() : ViewModel(){
     }
 
     private fun removeSnakeTail() {
-        snakeSet.add(snakeCoordinate.last().convertToIndex())
+        snakeSet.remove(snakeCoordinate.last().convertToIndex())
         snakeCoordinate.removeLast()
     }
 
