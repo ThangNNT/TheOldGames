@@ -49,7 +49,7 @@ fun SnakePlayScreen(navController: NavController = rememberNavController()){
     }
     viewModel.isDead.value.apply {
         if(this){
-            DeadDialog(onReplay = {viewModel.reset()}, onExit = {
+            DeadDialog(score = score, onReplay = {viewModel.reset()}, onExit = {
                 viewModel.isDead.value = false
                 navController.popBackStack() })
         }
@@ -81,12 +81,14 @@ fun SnakePlayGround(
                     .size((boxPerRow * boxSize).dp)
                     .border(2.dp, Color.Blue)
             )
-            Box(
-                modifier = Modifier
-                    .size(boxSize.dp)
-                    .offset(x = (foodPos.first * boxSize).dp, y = (foodPos.second * boxSize).dp)
-                    .background(Color.Blue, shape = CircleShape)
-            )
+            if(!viewModel.shouldHideFood.value){
+                Box(
+                    modifier = Modifier
+                        .size(boxSize.dp)
+                        .offset(x = (foodPos.first * boxSize).dp, y = (foodPos.second * boxSize).dp)
+                        .background(Color.Red, shape = CircleShape)
+                )
+            }
             snake.forEach {
                 Box(
                     modifier = Modifier
@@ -135,7 +137,7 @@ fun Controller(onMove: (direction: SnakePlayViewModel.RunDirection)-> Unit = {})
 
 @ExperimentalUnitApi
 @Composable
-fun DeadDialog(onReplay: ()-> Unit, onExit: ()-> Unit){
+fun DeadDialog(score: Int, onReplay: ()-> Unit, onExit: ()-> Unit){
     val buttonWith= 80.dp
     Dialog(onDismissRequest = { onReplay.invoke()}){
         Column(
@@ -145,8 +147,10 @@ fun DeadDialog(onReplay: ()-> Unit, onExit: ()-> Unit){
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            Text(text = "Game over", color = Color.White, fontSize = TextUnit(20f, TextUnitType.Sp))
-            Spacer(modifier = Modifier.height(100.dp))
+            Text(text = "Game over", color = Color.White, fontSize = TextUnit(24f, TextUnitType.Sp))
+            Spacer(modifier = Modifier.height(16.dp))
+            Text(text = "Your score: $score", color = Color.White, fontSize = TextUnit(16f, TextUnitType.Sp))
+            Spacer(modifier = Modifier.height(80.dp))
             Row {
                 Button(onClick = { onReplay.invoke() }) {
                     Text(text = "Replay", modifier = Modifier.width(buttonWith), textAlign = TextAlign.Center)
