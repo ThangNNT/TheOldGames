@@ -22,6 +22,9 @@ class SnakePlayViewModel @Inject constructor() : ViewModel(){
     private val _foodPositionState = MutableStateFlow(Pair(0,0))
     val foodPositionState: StateFlow<Pair<Int, Int>> = _foodPositionState
 
+    private val _shouldHideFood = mutableStateOf(false)
+    val shouldHideFood: State<Boolean> = _shouldHideFood
+
     val boxPerRow = 50
 
     private val _score = mutableStateOf(0)
@@ -36,11 +39,20 @@ class SnakePlayViewModel @Inject constructor() : ViewModel(){
 
     init {
         reset()
+        viewModelScope.launch {
+            while (true){
+                _shouldHideFood.value = false
+                delay(900)
+                _shouldHideFood.value = true
+                delay(100)
+            }
+        }
     }
 
     fun reset(){
         snakeRunJob?.cancel()
         snakeCoordinate.clear()
+        snakeSet.clear()
         isDead.value = false
         val head = Pair(25, 25)
         val neck = Pair (24, 25)
@@ -75,12 +87,7 @@ class SnakePlayViewModel @Inject constructor() : ViewModel(){
     }
 
     private fun isValidFoodPosition(foodPos: Pair<Int, Int>): Boolean {
-        snakeCoordinate.forEachIndexed { _, coordinate ->
-            if(foodPos.isDuplicate(coordinate)){
-                return false
-            }
-        }
-        return true
+        return !snakeSet.contains(foodPos.convertToIndex())
     }
 
     private fun addSnake(index: Int = -1, pair: Pair<Int, Int>){
@@ -235,13 +242,8 @@ class SnakePlayViewModel @Inject constructor() : ViewModel(){
         return head.first == boxPerRow-1
     }
 
-    private fun isDead(head: Pair<Int, Int>): Boolean{
-        snakeCoordinate.forEach {
-            if (head.isDuplicate(it)){
-                return true
-            }
-        }
-        return false
+    private fun isDead(head: Pair<Int, Int>): Boolean {
+        return snakeSet.contains(head.convertToIndex())
     }
 
     private fun getDirection(head: Pair<Int,Int>, neck: Pair<Int, Int>): RunDirection {
