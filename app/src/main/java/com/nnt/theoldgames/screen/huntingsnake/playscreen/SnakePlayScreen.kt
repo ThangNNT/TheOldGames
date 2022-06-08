@@ -11,6 +11,8 @@ import androidx.compose.material.Button
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -34,8 +36,28 @@ fun SnakePlayScreen(navController: NavController = rememberNavController()){
     val viewModel = hiltViewModel<SnakePlayViewModel>()
     val screenWithDp = LocalContext.current.resources.configuration.screenWidthDp
     val score = viewModel.score.value
+    val isPause = remember {
+        mutableStateOf(false)
+    }
     Box(modifier = Modifier.fillMaxSize()) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            Row(horizontalArrangement = Arrangement.End, modifier = Modifier.fillMaxWidth()) {
+                Button(onClick = {
+                    isPause.value = !isPause.value
+                    if(isPause.value){
+                        viewModel.pause()
+                    }
+                    else {
+                        viewModel.resume()
+                    }
+                }) {
+                    if (isPause.value) {
+                        Text("Pause")
+                    } else {
+                        Text("Playing")
+                    }
+                }
+            }
             Row(horizontalArrangement = Arrangement.End) {
                 Text("Score: ")
                 Text(text = "$score")

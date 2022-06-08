@@ -49,6 +49,25 @@ class SnakePlayViewModel @Inject constructor() : ViewModel(){
         }
     }
 
+    fun pause(){
+        snakeRunJob?.cancel()
+    }
+
+    fun resume(){
+        snakeRunJob?.cancel()
+        snakeRunJob = createRunJob()
+    }
+
+    private fun createRunJob(): Job {
+        return viewModelScope.launch(Dispatchers.Default) {
+            delay(500)
+            while (true) {
+                delay(100)
+                runSnake()
+            }
+        }
+    }
+
     fun reset(){
         snakeRunJob?.cancel()
         snakeCoordinate.clear()
@@ -62,13 +81,7 @@ class SnakePlayViewModel @Inject constructor() : ViewModel(){
             addSnake(pair = Pair(i, 25))
         }
         initSnakeLength = snakeCoordinate.size
-        snakeRunJob = viewModelScope.launch(Dispatchers.Default) {
-            delay(1000)
-            while (true) {
-                delay(100)
-                runSnake()
-            }
-        }
+        snakeRunJob = createRunJob()
         randomFood()
     }
 
