@@ -9,16 +9,12 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Button
 import androidx.compose.material.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.ExperimentalUnitApi
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.TextUnitType
@@ -36,25 +32,23 @@ fun SnakePlayScreen(navController: NavController = rememberNavController()){
     val viewModel = hiltViewModel<SnakePlayViewModel>()
     val screenWithDp = LocalContext.current.resources.configuration.screenWidthDp
     val score = viewModel.score.value
-    val isPause = remember {
-        mutableStateOf(false)
-    }
+
     Box(modifier = Modifier.fillMaxSize()) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Row(horizontalArrangement = Arrangement.End, modifier = Modifier.fillMaxWidth()) {
                 Button(onClick = {
-                    isPause.value = !isPause.value
-                    if(isPause.value){
+                    val isPause = viewModel.isPause.value
+                    if(!isPause){
                         viewModel.pause()
                     }
                     else {
                         viewModel.resume()
                     }
                 }) {
-                    if (isPause.value) {
-                        Text("Pause")
+                    if (viewModel.isPause.value) {
+                        Text("Resume")
                     } else {
-                        Text("Playing")
+                        Text("Pause")
                     }
                 }
             }
@@ -64,7 +58,7 @@ fun SnakePlayScreen(navController: NavController = rememberNavController()){
             }
             SnakePlayGround(viewModel, screenWithDp)
             Spacer(modifier = Modifier.height(24.dp))
-            Controller {
+            Controller(viewModel.isPause) {
                 viewModel.move(it)
             }
         }
@@ -101,7 +95,7 @@ fun SnakePlayGround(
             Box(
                 modifier = Modifier
                     .size((boxPerRow * boxSize).dp)
-                    .border(2.dp, Color.Blue)
+                    .border(2.dp, Color.Black)
             )
             if(!viewModel.shouldHideFood.value){
                 Box(
@@ -125,31 +119,56 @@ fun SnakePlayGround(
 }
 
 @ExperimentalFoundationApi
-@Preview
 @Composable
-fun Controller(onMove: (direction: SnakePlayViewModel.RunDirection)-> Unit = {}){
+fun Controller(isPause: State<Boolean>, onMove: (direction: SnakePlayViewModel.RunDirection) -> Unit = {}) {
     val buttonWidth = 60.dp
-    LazyVerticalGrid(cells = GridCells.Fixed(3), modifier = Modifier.width(180.dp)){
-        items(9){ index ->
-            when(index){
+    val buttonHeight = 40.dp
+
+    LazyVerticalGrid(cells = GridCells.Fixed(3), modifier = Modifier.width(180.dp)) {
+        items(9) { index ->
+            when (index) {
                 1 -> {
-                    Button(onClick = {onMove.invoke(SnakePlayViewModel.RunDirection.Up)}) {
-                        Text(text = "^", modifier = Modifier.width(buttonWidth), textAlign = TextAlign.Center)
+                    Button(onClick = { onMove.invoke(SnakePlayViewModel.RunDirection.Up) }, enabled = !isPause.value) {
+                        Text(
+                            text = "^",
+                            modifier = Modifier
+                                .width(buttonWidth)
+                                .height(buttonHeight),
+                            textAlign = TextAlign.Center
+                        )
                     }
                 }
                 3 -> {
-                    Button(onClick = {onMove.invoke(SnakePlayViewModel.RunDirection.Left)}) {
-                        Text(text = "<", modifier = Modifier.width(buttonWidth), textAlign = TextAlign.Center)
+                    Button(onClick = { onMove.invoke(SnakePlayViewModel.RunDirection.Left) }, enabled = !isPause.value) {
+                        Text(
+                            text = "<",
+                            modifier = Modifier
+                                .width(buttonWidth)
+                                .height(buttonHeight),
+                            textAlign = TextAlign.Center
+                        )
                     }
                 }
                 5 -> {
-                    Button(onClick = {onMove.invoke(SnakePlayViewModel.RunDirection.Right)}) {
-                        Text(text = ">", modifier = Modifier.width(buttonWidth), textAlign = TextAlign.Center)
+                    Button(onClick = { onMove.invoke(SnakePlayViewModel.RunDirection.Right) }, enabled = !isPause.value) {
+                        Text(
+                            text = ">",
+                            modifier = Modifier
+                                .width(buttonWidth)
+                                .height(buttonHeight),
+                            textAlign = TextAlign.Center
+                        )
                     }
                 }
                 7 -> {
-                    Button(onClick = {onMove.invoke(SnakePlayViewModel.RunDirection.Down)}) {
-                        Text(text = "v", modifier = Modifier.width(buttonWidth), textAlign = TextAlign.Center)
+                    Button(onClick = { onMove.invoke(SnakePlayViewModel.RunDirection.Down) }, enabled = !isPause.value) {
+                        Text(
+                            text = "v",
+                            modifier = Modifier
+                                .width(buttonWidth)
+                                .height(buttonHeight),
+                            textAlign = TextAlign.Center
+                        )
                     }
                 }
             }

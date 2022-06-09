@@ -37,6 +37,9 @@ class SnakePlayViewModel @Inject constructor() : ViewModel(){
     val isDead = mutableStateOf(false)
     private var initSnakeLength = 2
 
+    private val _isPause = mutableStateOf(false)
+    val isPause: State<Boolean> = _isPause
+
     init {
         reset()
         viewModelScope.launch {
@@ -50,10 +53,12 @@ class SnakePlayViewModel @Inject constructor() : ViewModel(){
     }
 
     fun pause(){
+        _isPause.value = true
         snakeRunJob?.cancel()
     }
 
     fun resume(){
+        _isPause.value = false
         snakeRunJob?.cancel()
         snakeRunJob = createRunJob()
     }

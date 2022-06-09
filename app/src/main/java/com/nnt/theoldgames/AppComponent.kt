@@ -2,6 +2,7 @@ package com.nnt.theoldgames
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.unit.ExperimentalUnitApi
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -13,6 +14,7 @@ import com.nnt.theoldgames.screen.gameboard.HuntingSnake
 import com.nnt.theoldgames.screen.huntingsnake.SnakePlayScreen
 import com.nnt.theoldgames.ui.theme.TheOldGamesTheme
 
+@ExperimentalUnitApi
 @ExperimentalFoundationApi
 @Composable
 fun App() {
@@ -23,6 +25,7 @@ fun App() {
     }
 }
 
+@ExperimentalUnitApi
 @ExperimentalFoundationApi
 @Composable
 fun NavigationGraph(navController: NavHostController){
